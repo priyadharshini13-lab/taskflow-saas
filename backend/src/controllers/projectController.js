@@ -62,9 +62,27 @@ const updateProject = async (req, res, next) => {
     return next(error);
   }
 };
+
+const deleteProject = async (req, res, next) => {
+  try {
+    const project = await projectService.deleteProject(
+      req.params.id,
+      req.user._id
+    );
+
+    return res.status(200).json({
+      message: 'Project archived successfully.',
+      data: project,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   updateProject,
+  deleteProject,
 };

@@ -12,5 +12,10 @@ router.put(
   authenticateToken,
   projectController.updateProject
 );
+router.delete(
+  '/:id',
+  authenticateToken,
+  projectController.deleteProject
+);
 
 module.exports = router;

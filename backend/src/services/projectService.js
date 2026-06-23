@@ -24,6 +24,7 @@ const createProject = async ({ name, description, ownerId }) => {
 
 const getProjectsForUser = async (userId) => {
   return Project.find({
+    archived: false,
     $or: [
       { ownerId: userId },
       { 'members.userId': userId },
@@ -77,9 +78,28 @@ const updateProject = async (projectId, userId, updates) => {
   return project;
 };
 
+const deleteProject = async (projectId, userId) => {
+  const project = await Project.findOne({
+    _id: projectId,
+    ownerId: userId,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  project.archived = true;
+  await project.save();
+
+  return project;
+};
+
 module.exports = {
   createProject,
   getProjectsForUser,
   getProjectById,
   updateProject,
+  deleteProject,
 };
