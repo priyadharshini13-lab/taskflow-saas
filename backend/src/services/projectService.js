@@ -32,6 +32,8 @@ const getProjectsForUser = async (userId) => {
 };
 
 const getProjectById = async (projectId, userId) => {
+  
+
   const project = await Project.findOne({
     _id: projectId,
     $or: [
@@ -39,6 +41,7 @@ const getProjectById = async (projectId, userId) => {
       { 'members.userId': userId },
     ],
   });
+
 
   if (!project) {
     const error = new Error('Project not found.');
