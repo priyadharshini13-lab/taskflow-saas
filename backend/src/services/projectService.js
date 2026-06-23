@@ -52,8 +52,34 @@ const getProjectById = async (projectId, userId) => {
   return project;
 };
 
+const updateProject = async (projectId, userId, updates) => {
+  const project = await Project.findOne({
+    _id: projectId,
+    ownerId: userId,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (updates.name !== undefined) {
+    project.name = updates.name;
+  }
+
+  if (updates.description !== undefined) {
+    project.description = updates.description;
+  }
+
+  await project.save();
+
+  return project;
+};
+
 module.exports = {
   createProject,
   getProjectsForUser,
-  getProjectById
+  getProjectById,
+  updateProject,
 };
