@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const mongoose = require('mongoose');
 
 const uri = process.env.MONGODB_URI;
+console.log(uri);
 if (!uri) {
   console.error('MONGODB_URI is missing');
   process.exit(1);

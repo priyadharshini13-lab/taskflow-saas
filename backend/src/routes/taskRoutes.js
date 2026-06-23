@@ -11,4 +11,10 @@ router.post(
   taskController.createTask
 );
 
+router.get(
+  '/project/:projectId',
+  authenticateToken,
+  taskController.getTasksByProject
+);
+
 module.exports = router;

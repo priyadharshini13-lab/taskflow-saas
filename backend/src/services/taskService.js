@@ -27,6 +27,26 @@ const createTask = async (taskData, userId) => {
   return task;
 };
 
+const getTasksByProject = async (projectId, userId) => {
+  const project = await Project.findOne({
+    _id: projectId,
+    $or: [
+      { ownerId: userId },
+      { 'members.userId': userId },
+    ],
+    archived: false,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  return Task.find({ projectId }).sort({ createdAt: -1 });
+};
+
 module.exports = {
   createTask,
+  getTasksByProject,
 };
