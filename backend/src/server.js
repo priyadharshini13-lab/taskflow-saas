@@ -5,6 +5,9 @@ const app = require('./app');
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/taskflow-saas';
 
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/dashboard', dashboardRoutes);
+
 mongoose.set('strictQuery', true);
 
 mongoose.connection.on('error', (err) => {

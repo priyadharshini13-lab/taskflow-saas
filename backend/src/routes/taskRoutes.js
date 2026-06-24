@@ -17,4 +17,16 @@ router.get(
   taskController.getTasksByProject
 );
 
+router.patch(
+  '/:taskId/status',
+  authenticateToken,
+  taskController.updateTaskStatus
+);
+
+router.delete(
+  '/:taskId',
+  authenticateToken,
+  taskController.deleteTask
+);
+
 module.exports = router;

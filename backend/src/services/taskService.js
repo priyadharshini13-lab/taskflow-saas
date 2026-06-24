@@ -24,6 +24,11 @@ const createTask = async (taskData, userId) => {
     tags: taskData.tags,
   });
 
+  await Project.findByIdAndUpdate(
+    taskData.projectId,
+    { $inc: { taskCount: 1 } }
+  );
+
   return task;
 };
 
@@ -46,7 +51,75 @@ const getTasksByProject = async (projectId, userId) => {
   return Task.find({ projectId }).sort({ createdAt: -1 });
 };
 
+const updateTaskStatus = async (taskId, status, userId) => {
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    const error = new Error('Task not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  const project = await Project.findOne({
+    _id: task.projectId,
+    $or: [
+      { ownerId: userId },
+      { 'members.userId': userId },
+    ],
+    archived: false,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  task.status = status;
+  await task.save();
+
+  return task;
+};
+
+const deleteTask = async (taskId, userId) => {
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    const error = new Error('Task not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  const project = await Project.findOne({
+    _id: task.projectId,
+    $or: [
+      { ownerId: userId },
+      { 'members.userId': userId },
+    ],
+    archived: false,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  await task.deleteOne();
+
+  await Project.findByIdAndUpdate(
+    task.projectId,
+    { $inc: { taskCount: -1 } }
+  );
+
+  return {
+    message: 'Task deleted successfully.',
+  };
+};
+
 module.exports = {
   createTask,
   getTasksByProject,
+  updateTaskStatus,
+  deleteTask,
 };
