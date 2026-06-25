@@ -18,4 +18,10 @@ router.delete(
   projectController.deleteProject
 );
 
+router.post(
+  '/:projectId/members',
+  authenticateToken,
+  projectController.addMember
+);
+
 module.exports = router;

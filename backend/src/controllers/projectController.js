@@ -79,10 +79,30 @@ const deleteProject = async (req, res, next) => {
   }
 };
 
+const addMember = async (req, res, next) => {
+  try {
+
+    const project = await projectService.addMember(
+      req.params.projectId,
+      req.user._id,
+      req.body
+    );
+
+    return res.status(200).json({
+      message: 'Member added successfully.',
+      data: project,
+    });
+
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   updateProject,
   deleteProject,
+  addMember,
 };

@@ -1,16 +1,30 @@
 const Task = require('../models/Task');
 const Project = require('../models/Project');
+const {
+  getProjectRole,
+  canManageTasks,
+} = require('../utils/projectPermissions');
 
 const createTask = async (taskData, userId) => {
   const project = await Project.findOne({
     _id: taskData.projectId,
-    ownerId: userId,
+    $or: [
+      { ownerId: userId },
+      { 'members.userId': userId },
+    ],
     archived: false,
   });
 
   if (!project) {
     const error = new Error('Project not found.');
     error.status = 404;
+    throw error;
+  }
+  const role = getProjectRole(project, userId);
+
+  if (!canManageTasks(role)) {
+    const error = new Error('Permission denied.');
+    error.status = 403;
     throw error;
   }
 
@@ -75,6 +89,14 @@ const updateTaskStatus = async (taskId, status, userId) => {
     throw error;
   }
 
+  const role = getProjectRole(project, userId);
+
+  if (!canManageTasks(role)) {
+    const error = new Error('Permission denied.');
+    error.status = 403;
+    throw error;
+  }
+
   task.status = status;
   await task.save();
 
@@ -102,6 +124,14 @@ const deleteTask = async (taskId, userId) => {
   if (!project) {
     const error = new Error('Project not found.');
     error.status = 404;
+    throw error;
+  }
+
+  const role = getProjectRole(project, userId);
+
+  if (!canManageTasks(role)) {
+    const error = new Error('Permission denied.');
+    error.status = 403;
     throw error;
   }
 

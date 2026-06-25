@@ -1,4 +1,5 @@
 const Project = require('../models/Project');
+const User = require('../models/User');
 
 const createProject = async ({ name, description, ownerId }) => {
   if (!name || typeof name !== 'string' || name.trim().length < 3) {
@@ -96,10 +97,63 @@ const deleteProject = async (projectId, userId) => {
   return project;
 };
 
+const addMember = async (
+  projectId,
+  ownerId,
+  { email, role }
+) => {
+
+  const project = await Project.findOne({
+    _id: projectId,
+    ownerId,
+    archived: false,
+  });
+
+  if (!project) {
+    const error = new Error('Project not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  const user = await User.findOne({
+    email: email.toLowerCase(),
+  });
+
+  if (!user) {
+    const error = new Error('User not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  const existingMember = project.members.find(
+    (member) =>
+      member.userId.toString() === user._id.toString()
+  );
+
+  if (existingMember) {
+    const error = new Error(
+      'User is already a project member.'
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  project.members.push({
+    userId: user._id,
+    role,
+    displayName: user.name,
+  });
+
+  await project.save();
+
+  return project;
+};
+
 module.exports = {
   createProject,
   getProjectsForUser,
   getProjectById,
   updateProject,
   deleteProject,
+  addMember,
 };
